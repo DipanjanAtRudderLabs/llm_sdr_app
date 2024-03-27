@@ -1,0 +1,7 @@
+langchain
+pandas
+openai
+langchain-google-genai
+boto3
+awscli
+botocore

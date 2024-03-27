@@ -1,0 +1,17 @@
+# This is a sample file, for detailed reference see: https://rudderlabs.github.io/pywht/
+inputs:
+  - name: rsFeatureTable
+    contract:
+      is_optional: false
+      is_event_stream: false
+      with_entity_ids:
+        - user
+      with_columns: []
+    app_defaults:
+      table: demo_db.llm_demos.llm_sdr_app_demo
+      ids:
+        - select: "user_main_id"
+          type: user_id
+          entity: user
+
+      

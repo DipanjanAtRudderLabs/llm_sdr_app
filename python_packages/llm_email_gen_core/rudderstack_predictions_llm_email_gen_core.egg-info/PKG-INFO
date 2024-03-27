@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: rudderstack_predictions_llm_email_gen_core
+Version: 0.0.1
+Summary: A py_native model package for constructing outreach emails for SDRs using LLM invocations
+Author: Dipanjan Biswas
+Author-email: dipanjan@rudderstack.com
+Requires-Dist: langchain
+Requires-Dist: pandas
+Requires-Dist: openai
+Requires-Dist: langchain-google-genai
+Requires-Dist: boto3
+Requires-Dist: awscli
+Requires-Dist: botocore

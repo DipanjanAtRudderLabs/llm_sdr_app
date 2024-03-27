@@ -1,0 +1,28 @@
+models:
+  - name: user_id_stitcher
+    model_type: id_stitcher
+    model_spec:
+      validity_time: 24h # 1 day
+      entity_key: user
+      edge_sources:
+        - from: inputs/rsFeatureTable
+  
+  - name: llm_email_gen_model
+    model_type: llm_email_gen
+    model_spec:
+      inputs:
+        - inputs/rsFeatureTable
+      id_graph_table_name: common.public.user_id_graph
+      feature_table_prospect_identifier_field: SF_LEAD_ID
+      prospect_info_table_name: common.public.sf_lead_var_table
+      prospect_identifier_field: LEAD_ID
+      prospect_email_field: EMAIL
+      prospect_name_field: NAME
+      prospect_title_field: TITLE
+      prospect_company_name_field: CLEARBIT_COMPANY_NAME_C
+      prospect_company_category_field: CLEARBIT_COMPANY_CATEGORY_INDUSTRY_C
+      prospect_company_employee_num_field: CLEARBIT_COMPANY_METRICS_EMPLOYEES_C
+      pages_table_name:  rudder_autotrack_data.autotrack.pages
+      output_field: email_content
+      endpoint: openai
+      model: gpt-3.5-turbo

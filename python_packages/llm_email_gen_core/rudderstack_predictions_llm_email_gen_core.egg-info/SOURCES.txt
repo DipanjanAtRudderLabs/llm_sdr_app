@@ -1,0 +1,8 @@
+setup.py
+rudderstack_predictions_llm_email_gen_core/__init__.py
+rudderstack_predictions_llm_email_gen_core/llm_email_gen.py
+rudderstack_predictions_llm_email_gen_core.egg-info/PKG-INFO
+rudderstack_predictions_llm_email_gen_core.egg-info/SOURCES.txt
+rudderstack_predictions_llm_email_gen_core.egg-info/dependency_links.txt
+rudderstack_predictions_llm_email_gen_core.egg-info/requires.txt
+rudderstack_predictions_llm_email_gen_core.egg-info/top_level.txt

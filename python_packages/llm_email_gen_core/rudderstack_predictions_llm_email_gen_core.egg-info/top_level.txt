@@ -1,0 +1,1 @@
+rudderstack_predictions_llm_email_gen_core

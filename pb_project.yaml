@@ -1,0 +1,21 @@
+name: llm_sdr_app_project
+# Project's yaml schema version
+schema_version: 54
+# WH Connection to use.
+connection: profiles-ml
+# Whether to allow inputs having no timestamps,
+# if true, data without timestamps are included when running models
+include_untimed: true
+# Model folders to use.
+model_folders:
+  - models
+entities:
+  - name: user
+    id_stitcher: models/user_id_stitcher
+    id_types:
+      - user_id
+python_requirements:
+  - rudderstack_predictions_llm_email_gen_core==0.0.1
+id_types:
+  - name: user_id
+  
