@@ -4,6 +4,7 @@ Version: 0.0.1
 Summary: A py_native model package for constructing outreach emails for SDRs using LLM invocations
 Author: Dipanjan Biswas
 Author-email: dipanjan@rudderstack.com
+Requires-Python: >=3.10
 Requires-Dist: langchain
 Requires-Dist: pandas
 Requires-Dist: openai
