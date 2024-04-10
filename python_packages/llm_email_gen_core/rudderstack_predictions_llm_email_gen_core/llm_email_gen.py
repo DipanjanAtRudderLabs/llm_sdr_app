@@ -36,13 +36,15 @@ class LLMEmailGenModel(BaseModelType):
             "prospect_company_category_field": {"type": "string"},
             "prospect_company_employee_num_field": {"type": "string"},
             "pages_table_name": {"type": "string"},
+            "role_responsibility_prompt": {"type": "string"},
+            "task_prompt": {"type": "string"},
             "output_field": {"type": "string"},
             "endpoint": {"type": "string"},
             "model": {"type": "string"}
         },
         "required": ["inputs","id_graph_table_name","feature_table_prospect_identifier_field","prospect_info_table_name","prospect_identifier_field",\
             "prospect_email_field","prospect_name_field","prospect_title_field","prospect_company_name_field","prospect_company_category_field",\
-                "prospect_company_employee_num_field","pages_table_name","output_field","endpoint","model"],
+                "prospect_company_employee_num_field","pages_table_name","role_responsibility_prompt","task_prompt","output_field","endpoint","model"],
         "additionalProperties": False
     }
 
@@ -54,7 +56,8 @@ class LLMEmailGenModel(BaseModelType):
             self.build_spec.get("prospect_info_table_name"),self.build_spec.get("prospect_identifier_field"),self.build_spec.get("prospect_email_field"),\
                 self.build_spec.get("prospect_name_field"),self.build_spec.get("prospect_title_field"),self.build_spec.get("prospect_company_name_field"),\
                     self.build_spec.get("prospect_company_category_field"),self.build_spec.get("prospect_company_employee_num_field"),\
-                        self.build_spec.get("pages_table_name"),self.build_spec.get("output_field"),self.build_spec.get("endpoint"),self.build_spec.get("model"))
+                        self.build_spec.get("pages_table_name"),self.build_spec.get("role_responsibility_prompt"), self.build_spec.get("task_prompt"),\
+                            self.build_spec.get("output_field"),self.build_spec.get("endpoint"),self.build_spec.get("model"))
 
     def validate(self):
         # Model Validate
@@ -64,7 +67,8 @@ class LLMEmailGenModel(BaseModelType):
 class LLMEmailGenRecipe(PyNativeRecipe):
     def __init__(self, inputs: List[str], id_graph_table_name: str, feature_table_prospect_identifier_field: str, prospect_info_table_name: str, \
         prospect_identifier_field: str, prospect_email_field: str, prospect_name_field: str, prospect_title_field: str, prospect_company_name_field: str, \
-            prospect_company_category_field: str, prospect_company_employee_num_field: str, pages_table_name: str, output_field: str, endpoint: str, model: str) -> None:
+            prospect_company_category_field: str, prospect_company_employee_num_field: str, pages_table_name: str, role_responsibility_prompt: str, task_prompt: str,\
+                output_field: str, endpoint: str, model: str) -> None:
         self.inputs = inputs
         self.id_graph_table_name = id_graph_table_name
         self.feature_table_prospect_identifier_field = feature_table_prospect_identifier_field
@@ -78,6 +82,8 @@ class LLMEmailGenRecipe(PyNativeRecipe):
         self.prospect_company_employee_num_field = prospect_company_employee_num_field
         self.output_field = output_field
         self.pages_table_name = pages_table_name
+        self.role_responsibility_prompt = role_responsibility_prompt
+        self.task_prompt = task_prompt
         self.endpoint = endpoint
         self.model = model
         self.logger = Logger("LLMEmailGenRecipe")
@@ -89,7 +95,8 @@ class LLMEmailGenRecipe(PyNativeRecipe):
                 Prospect Email Field: {self.prospect_email_field}\nProspect Name Field: {self.prospect_name_field}\nProspect Title Field: {self.prospect_title_field}\n\
                         Prospect Company Name Field: {self.prospect_company_name_field}\nProspect Company Category Field: {self.prospect_company_category_field}\n\
                             Prospect Company Employee Number Field: {self.prospect_company_employee_num_field}\nOutput Field: {self.output_field}\n\
-                                Pages Table Name: {self.pages_table_name}\nEndpoint: {self.endpoint}\nModel: {self.model}""", ".txt"
+                                Pages Table Name: {self.pages_table_name}\nRole and Responsibility Prompt: {self.role_responsibility_prompt}\n\
+                                    Task Prompt: {self.task_prompt}\nEndpoint: {self.endpoint}\nModel: {self.model}""", ".txt"
 
     
     def prepare(self, this: WhtMaterial):
@@ -137,11 +144,10 @@ class LLMEmailGenRecipe(PyNativeRecipe):
                 prospect_page_view_df = this.wht_ctx.client.query_sql_with_result(prospect_page_view_query)
 
                 complete_prompt = "Following are the titles and links to top 100 pages on RudderStack website in JSON format : " + \
-                    top_100_pages_df.to_json() + " .You are a sales development rep writing an email to " +  prospect_name + " of company " +  \
+                    top_100_pages_df.to_json() + " . " + self.role_responsibility_prompt + " " + prospect_name + " of company " +  \
                         prospect_company_name + ". " + prospect_company_name + " is a " +  prospect_company_num_employees + " people, " + \
                             prospect_company_industry + " company. Following are the titles of pages on RudderStack website that the person has visited " + \
-                                " most recently : " + prospect_page_view_df["TITLE"].to_json() + ". Write an email recommending three more pages - title and url " + \
-                                    " - based on the pages most recently visited by the person"
+                                " most recently : " + prospect_page_view_df["TITLE"].to_json() + ". " + self.task_prompt
 
 
                 llm = Bedrock(region_name="us-east-1", model_id="anthropic.claude-v2") # default LLM
