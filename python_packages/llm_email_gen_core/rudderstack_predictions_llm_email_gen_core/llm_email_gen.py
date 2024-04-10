@@ -112,6 +112,7 @@ class LLMEmailGenRecipe(PyNativeRecipe):
 
         top_100_pages_query = "select title, url from " + self.pages_table_name + " where timestamp > dateadd(month,-3,current_date()) " + \
                     " group by title, url order by count(*) desc limit 100"
+
         top_100_pages_df = this.wht_ctx.client.query_sql_with_result(top_100_pages_query)
 
 
@@ -119,22 +120,21 @@ class LLMEmailGenRecipe(PyNativeRecipe):
 
 
             try:
-                prospect_info_query = "select " + self.prospect_name_field + "," + self.prospect_title_field + ","  + self.prospect_company_name_field + "," + \
+                prospect_info_query = "select " + self.prospect_email_field + "," + self.prospect_name_field + "," + self.prospect_title_field + ","  + self.prospect_company_name_field + "," + \
                     self.prospect_company_category_field + "," + self.prospect_company_employee_num_field + " from " + self.prospect_info_table_name + \
                         " where " + self.prospect_identifier_field + " = '" + row[self.feature_table_prospect_identifier_field] + "'"
                 prospect_info_df = this.wht_ctx.client.query_sql_with_result(prospect_info_query)
 
-                prospect_name = prospect_info_df.iloc[0][self.prospect_name_field]
-                prospect_company_name = prospect_info_df.iloc[0][self.prospect_company_name_field]
-                prospect_company_num_employees = prospect_info_df.iloc[0][self.prospect_company_employee_num_field]
-                prospect_company_industry = prospect_info_df.iloc[0][self.prospect_company_category_field]
-
-
+                prospect_email = str(prospect_info_df.iloc[0][self.prospect_email_field])
+                prospect_name = str(prospect_info_df.iloc[0][self.prospect_name_field])
+                prospect_company_name = str(prospect_info_df.iloc[0][self.prospect_company_name_field])
+                prospect_company_num_employees = str(prospect_info_df.iloc[0][self.prospect_company_employee_num_field])
+                prospect_company_industry = str(prospect_info_df.iloc[0][self.prospect_company_category_field])
+                               
                 prospect_page_view_query = "select title , timestamp from " + self.pages_table_name + " where anonymous_id in " + \
                     "(select other_id from " + self.id_graph_table_name + " where user_main_id = '" + row["USER_MAIN_ID"] + "' and " +\
                         " other_id_type = 'anonymous_id') order by timestamp desc limit 5"
                 prospect_page_view_df = this.wht_ctx.client.query_sql_with_result(prospect_page_view_query)
-
 
                 complete_prompt = "Following are the titles and links to top 100 pages on RudderStack website in JSON format : " + \
                     top_100_pages_df.to_json() + " .You are a sales development rep writing an email to " +  prospect_name + " of company " +  \
@@ -193,6 +193,7 @@ class LLMEmailGenRecipe(PyNativeRecipe):
                     api_call_count = api_call_count + 1
                     id_response = {}
                     id_response["user_main_id"] = row[0]
+                    id_response["email_address"] = prospect_email
                     id_response["prompt"] = complete_prompt
                     id_response[self.output_field] = result
                     id_response_list.append(id_response)
@@ -201,14 +202,17 @@ class LLMEmailGenRecipe(PyNativeRecipe):
                     self.logger.info("Internal rate limit reached for " + self.endpoint.lower() + ":" + self.model.lower())
                 
 
-            except Exception as e: # unable to retrieve data (table/row does not exist or other)
-                error_message = "Prospect data incomplete for " + row["USER_MAIN_ID"] + ". Unable to construct prompt."
-                self.logger.info(error_message)
+            except Exception as e: # unable to retrieve data (table/row does not exist or other)                
+                self.logger.info(str(e))
+                
 
 
-        id_response_df = pd.DataFrame(id_response_list)
+        if len(id_response_list) > 0:
+            id_response_df = pd.DataFrame(id_response_list)
 
-        this.write_output(id_response_df)
+            this.write_output(id_response_df)
+        else:
+            self.logger.info("No data to materialize")
 
 
 
