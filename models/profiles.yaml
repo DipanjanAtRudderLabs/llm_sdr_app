@@ -24,7 +24,7 @@ models:
       prospect_company_employee_num_field: CLEARBIT_COMPANY_METRICS_EMPLOYEES_C
       pages_table_name:  rudder_autotrack_data.autotrack.pages
       role_responsibility_prompt: "You are a sales development rep communicating with "
-      task_prompt: "Write an email recommending three more pages - title and url - based on the pages most recently visited by the person"
+      task_prompt: "Print a JSON that can be sent to customer.io for generating an email recommending three more pages - title and url - based on the pages most recently visited by the person. The output needs to be in JSON format and should contain fields like addressee name, list of page titles and their URLs"
       output_field: email_content
-      endpoint: google
-      model: gemini-1.0-pro
+      endpoint: openai
+      model: gpt-3.5-turbo
